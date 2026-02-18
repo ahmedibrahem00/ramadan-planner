@@ -140,7 +140,7 @@
 </main>
 
 <footer>
-  ربنا يتقبل منكم ويعينكم على الطاعة  اخوكم احمد ابراهيم🤍
+  ربنا يتقبل منكم ويعينكم على الطاعة اخوكم احمد ابراهيم🤍
 </footer>
 
 <script>
@@ -250,11 +250,8 @@
     const missedStats = ['fajr','dhuhr','asr','maghrib','isha','wird','morning','evening','salawat']
       .map(k => ({ k, c: items.filter(d=>!d[k]).length }));
 
-
-    const maxMiss = Math.max(...missedStats.map(d => d.c));
-    const mostMissed = maxMiss === 0 
-    ? [] 
-    : missedStats.filter(d => d.c === maxMiss).map(d => names[d.k]);
+    const topMissed = missedStats.sort((a,b)=> b.c - a.c)[0];
+    const mostMissed = topMissed.c === 0 ? null : topMissed.k;
 
     const names = {
       fajr:'الفجر', dhuhr:'الظهر', asr:'العصر', maghrib:'المغرب', isha:'العشاء',
@@ -264,15 +261,15 @@
     summaryEl.innerHTML = `
       <div>عدد الأيام الملتزم فيها بالكامل: <strong>${fullDays}</strong></div>
       <div>متوسط تقييم الأيام: <strong>${avgRating} ⭐</strong></div>
-    <div>أكتر حاجة محتاجة تزبيط:
-   <strong>
-    ${
-      mostMissed.length === 0
-        ? 'ما شاء الله عليك 👏'
-        : mostMissed.join('، ') + ' — حاول تلتزم 💪'
-    }
-  </strong>
-   </div>
+      <div>أكتر حاجة محتاجة تزبيط:
+        <strong>
+          ${
+            mostMissed 
+              ? names[mostMissed] + ' — حاول تلتزم 💪' 
+              : 'مش محتاج ما شاء الله عليك 👏 '
+          }
+        </strong>
+      </div>
     `;
   }
 
@@ -281,8 +278,4 @@
 </script>
 
 </body>
-
 </html>
-
-
-

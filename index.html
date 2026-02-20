@@ -190,6 +190,18 @@
     return Math.round((done / allKeys.length) * 5);
   }
 
+  function recalculateOldRatings() {
+  const store = getStore();
+  if (!store.archive) return;
+
+  Object.keys(store.archive).forEach(date => {
+    const dayData = store.archive[date];
+    dayData.rating = calculateRating(dayData);
+  });
+
+  setStore(store);
+}
+
   function updateAutoRating(){
     const store = getStore();
     const today = store[todayKey()] || {};
@@ -303,8 +315,9 @@ toggleBtn.addEventListener("click", () => {
     `;
   }
 
-  loadToday();
-  loadArchive();
+recalculateOldRatings();
+loadToday();
+loadArchive();
 </script>
 
 </body>

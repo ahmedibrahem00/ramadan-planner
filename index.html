@@ -25,7 +25,7 @@
     header h1 { margin: 0 0 8px; font-size: 28px; color: var(--gold); }
     header p { margin: 0; color: var(--muted); }
 
-    .container { max-width: 980px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
 
     .card {
       background: linear-gradient(180deg, #0b1220, #020617);
@@ -38,6 +38,24 @@
 
     .grid { display: grid; gap: 12px; }
     .grid-2 { grid-template-columns: 1fr 1fr; }
+
+.archive-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  margin-top: 15px;
+}
+
+.archive-wrapper {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .5s ease;
+}
+
+.archive-wrapper.open {
+  max-height: 2000px;
+}
+
     @media (max-width: 640px) {
       .grid-2 { grid-template-columns: 1fr; }
       header h1 { font-size: 24px; }
@@ -50,10 +68,6 @@
     }
     .checklist input { width: 20px; height: 20px; }
 
-    .stars { display: flex; gap: 6px; font-size: 22px; cursor: pointer; }
-    .star { color: #334155; }
-    .star.active { color: var(--gold); }
-
     .actions { display: grid; gap: 10px; }
     .btn {
       border: 0; border-radius: 12px; padding: 12px 14px;
@@ -65,12 +79,23 @@
     }
 
     .archive-item {
-      border: 1px solid #1f2933; border-radius: 12px; padding: 12px;
+      border: 1px solid #1f2933; border-radius: 12px; padding: 14px;
       background: rgba(2,6,23,.6);
+      transition: .3s;
+    }
+    .archive-item:hover {
+      transform: translateY(-3px);
+      border-color: #22c55e;
     }
 
     footer { text-align: center; color: var(--muted); padding: 24px 12px; }
     .badge { color: #a7f3d0; font-weight: 700; }
+    .rating-box {
+      margin-top:10px;
+      font-size:18px;
+      color: var(--gold);
+      font-weight:bold;
+    }
   </style>
 </head>
 <body>
@@ -88,7 +113,7 @@
     <div class="grid grid-2" style="margin-top:12px">
       <div class="card">
         <h3>🕌 الصلوات</h3>
-        <div class="checklist" id="prayers">
+        <div class="checklist">
           <label><input type="checkbox" data-key="fajr"> الفجر</label>
           <label><input type="checkbox" data-key="dhuhr"> الظهر</label>
           <label><input type="checkbox" data-key="asr"> العصر</label>
@@ -99,11 +124,11 @@
 
       <div class="card">
         <h3>📖 القرآن</h3>
-        <div class="checklist" id="quran">
-          <label><input type="checkbox" data-key="wird"> ورد اليوم اتقرأ</label>
+        <div class="checklist">
+          <label><input type="checkbox" data-key="wird"> ورد اليوم اتقري</label>
         </div>
         <h3 style="margin-top:10px">🤲 الأذكار</h3>
-        <div class="checklist" id="adhkar">
+        <div class="checklist">
           <label><input type="checkbox" data-key="morning"> أذكار الصباح</label>
           <label><input type="checkbox" data-key="evening"> أذكار المساء</label>
           <label><input type="checkbox" data-key="salawat"> صلاة على النبي</label>
@@ -111,27 +136,27 @@
       </div>
     </div>
 
-    <div style="margin-top:12px">
-      <h3>⭐ تقييم اليوم</h3>
-      <div class="stars" id="stars">
-        <span class="star" data-v="1">★</span>
-        <span class="star" data-v="2">★</span>
-        <span class="star" data-v="3">★</span>
-        <span class="star" data-v="4">★</span>
-        <span class="star" data-v="5">★</span>
-      </div>
+    <div class="rating-box">
+      ⭐ تقييمك اليوم: <span id="autoRating">0 / 5</span>
     </div>
 
     <div class="actions" style="margin-top:12px">
       <button class="btn" id="finishDay">✅ إنهاء اليوم وحفظه في الأرشيف</button>
-      <button class="btn secondary" id="resetToday">♻️ تصفير اليوم (لو لسه مابدأتش)</button>
+      <button class="btn secondary" id="resetToday">♻️ تصفير اليوم</button>
     </div>
   </section>
 
-  <section class="card">
-    <h2>📂 الأرشيف</h2>
-    <div id="archiveList" class="grid"></div>
-  </section>
+<section class="card">
+  <h2>📂 الأرشيف</h2>
+
+  <button class="btn secondary" id="toggleArchive">
+    📂 عرض الأرشيف
+  </button>
+
+  <div class="archive-wrapper" id="archiveWrapper">
+    <div id="archiveList" class="archive-grid"></div>
+  </div>
+</section>
 
   <section class="card">
     <h2>📊 ملخص رمضان</h2>
@@ -140,28 +165,37 @@
 </main>
 
 <footer>
-  ربنا يتقبل منكم ويعينكم على الطاعة اخوكم احمد ابراهيم🤍
+  ربنا يتقبل منكم ويعينكم على الطاعة اخوكم احمد ابراهيم 🤍
 </footer>
 
 <script>
-  const todayKey = () => {
-    const d = new Date();
-    return d.toISOString().slice(0,10);
-  };
-
+  const todayKey = () => new Date().toISOString().slice(0,10);
   const getStore = () => JSON.parse(localStorage.getItem('ramadan-tracker') || '{"archive":{}}');
   const setStore = (data) => localStorage.setItem('ramadan-tracker', JSON.stringify(data));
 
   const todayDateEl = document.getElementById('todayDate');
   const archiveList = document.getElementById('archiveList');
   const summaryEl = document.getElementById('summary');
-  const starsEl = document.getElementById('stars');
+  const autoRatingEl = document.getElementById('autoRating');
 
-  let rating = 0;
+  const allKeys = ['fajr','dhuhr','asr','maghrib','isha','wird','morning','evening','salawat'];
 
   function formatDate(dStr){
     const d = new Date(dStr);
-    return d.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    return d.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  }
+
+  function calculateRating(data){
+    const done = allKeys.filter(k => data[k]).length;
+    return Math.round((done / allKeys.length) * 5);
+  }
+
+  function updateAutoRating(){
+    const store = getStore();
+    const today = store[todayKey()] || {};
+    const rating = calculateRating(today);
+    autoRatingEl.textContent = rating + " / 5";
+    return rating;
   }
 
   function loadToday(){
@@ -171,29 +205,17 @@
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
       cb.checked = !!today[cb.dataset.key];
     });
-    rating = today.rating || 0;
-    paintStars(rating);
+    updateAutoRating();
   }
-
-  function paintStars(v){
-    document.querySelectorAll('.star').forEach(s => {
-      s.classList.toggle('active', Number(s.dataset.v) <= v);
-    });
-  }
-
-  starsEl.addEventListener('click', e => {
-    if(!e.target.classList.contains('star')) return;
-    rating = Number(e.target.dataset.v);
-    paintStars(rating);
-  });
 
   document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
     cb.addEventListener('change', () => {
       const store = getStore();
       store[todayKey()] = store[todayKey()] || {};
       store[todayKey()][cb.dataset.key] = cb.checked;
-      store[todayKey()].rating = rating;
+      store[todayKey()].rating = calculateRating(store[todayKey()]);
       setStore(store);
+      updateAutoRating();
     });
   });
 
@@ -213,10 +235,10 @@
 
   function resetToday(){
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-    rating = 0; paintStars(0);
     const store = getStore();
     delete store[todayKey()];
     setStore(store);
+    updateAutoRating();
   }
 
   function loadArchive(){
@@ -224,19 +246,31 @@
     const items = Object.values(store.archive || {}).sort((a,b)=> b.date.localeCompare(a.date));
     archiveList.innerHTML = items.map(d => {
       const prayers = ['fajr','dhuhr','asr','maghrib','isha'].filter(k => d[k]).length;
-      const stars = '★'.repeat(d.rating || 0) + '☆'.repeat(5-(d.rating||0));
       return `
         <div class="archive-item">
           <div><strong>📅 ${formatDate(d.date)}</strong></div>
           <div>🕌 الصلوات: ${prayers}/5</div>
           <div>📖 القرآن: ${d.wird ? 'تم' : '—'}</div>
           <div>🤲 الأذكار: ${['morning','evening','salawat'].filter(k=>d[k]).length}/3</div>
-          <div>⭐ التقييم: ${stars}</div>
+          <div>⭐ التقييم: ${d.rating || 0} / 5</div>
         </div>
       `;
     }).join('') || '<p style="color:#9ca3af">لسه مفيش أيام محفوظة.</p>';
     loadSummary(items);
   }
+
+  const archiveWrapper = document.getElementById("archiveWrapper");
+const toggleBtn = document.getElementById("toggleArchive");
+
+toggleBtn.addEventListener("click", () => {
+  archiveWrapper.classList.toggle("open");
+
+  if (archiveWrapper.classList.contains("open")) {
+    toggleBtn.textContent = "❌ إخفاء الأرشيف";
+  } else {
+    toggleBtn.textContent = "📂 عرض الأرشيف";
+  }
+});
 
   function loadSummary(items){
     if(!items.length){
@@ -244,29 +278,25 @@
       return;
     }
 
-    const fullDays = items.filter(d => ['fajr','dhuhr','asr','maghrib','isha','wird','morning','evening','salawat'].every(k => d[k])).length;
+    const fullDays = items.filter(d => allKeys.every(k => d[k])).length;
     const avgRating = (items.reduce((s,d)=> s + (d.rating||0), 0) / items.length).toFixed(1);
-
-    const missedStats = ['fajr','dhuhr','asr','maghrib','isha','wird','morning','evening','salawat']
-      .map(k => ({ k, c: items.filter(d=>!d[k]).length }));
-
-    const topMissed = missedStats.sort((a,b)=> b.c - a.c)[0];
-    const mostMissed = topMissed.c === 0 ? null : topMissed.k;
 
     const names = {
       fajr:'الفجر', dhuhr:'الظهر', asr:'العصر', maghrib:'المغرب', isha:'العشاء',
       wird:'ورد القرآن', morning:'أذكار الصباح', evening:'أذكار المساء', salawat:'الصلاة على النبي'
     };
 
+    const missedAll = allKeys.filter(k => items.some(d => !d[k]));
+
     summaryEl.innerHTML = `
       <div>عدد الأيام الملتزم فيها بالكامل: <strong>${fullDays}</strong></div>
       <div>متوسط تقييم الأيام: <strong>${avgRating} ⭐</strong></div>
-      <div>أكتر حاجة محتاجة تزبيط:
+      <div>أكتر حاجات محتاجة تزبيط:
         <strong>
           ${
-            mostMissed 
-              ? names[mostMissed] + ' — حاول تلتزم 💪' 
-              : 'مش محتاج ما شاء الله عليك 👏 '
+            missedAll.length
+              ? missedAll.map(k => names[k]).join(' ، ') + ' — حاول تلتزم 💪'
+              : 'مش محتاج ما شاء الله عليك 👏'
           }
         </strong>
       </div>
@@ -279,4 +309,3 @@
 
 </body>
 </html>
-

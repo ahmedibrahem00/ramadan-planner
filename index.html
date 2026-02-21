@@ -303,9 +303,16 @@ footer {
   </div>
 </section>
 
-  <section class="card">
+<section class="card">
   <h2>🗑 سلة المحذوفات</h2>
-  <div id="trashList" class="archive-grid"></div>
+
+  <button class="btn secondary" id="toggleTrash">
+    🗑 عرض المحذوفات
+  </button>
+
+  <div class="archive-wrapper" id="trashWrapper">
+    <div id="trashList" class="archive-grid"></div>
+  </div>
 </section>
 
   <section class="card">
@@ -531,6 +538,19 @@ function loadTrash(){
     `;
   }).join('') || '<p style="color:#9ca3af">السلة فاضية ✨</p>';
 }
+
+const trashWrapper = document.getElementById("trashWrapper");
+const toggleTrashBtn = document.getElementById("toggleTrash");
+
+toggleTrashBtn.addEventListener("click", () => {
+  trashWrapper.classList.toggle("open");
+
+  if (trashWrapper.classList.contains("open")) {
+    toggleTrashBtn.textContent = "❌ إخفاء المحذوفات";
+  } else {
+    toggleTrashBtn.textContent = "🗑 عرض المحذوفات";
+  }
+});
 
 recalculateOldRatings();
 loadToday();

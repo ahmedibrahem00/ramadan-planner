@@ -220,7 +220,7 @@ footer {
   display: inline-block;
 }
 
-/* تحسين المسافات */
+    /* تحسين المسافات */
 
 .actions {
   display: flex;
@@ -413,8 +413,8 @@ footer {
   function loadArchive(){
     const store = getStore();
     const items = Object.values(store.archive || {}).sort((a,b)=> b.date.localeCompare(a.date));
-archiveList.innerHTML = items.map(d => {
-  const prayers = ['fajr','dhuhr','asr','maghrib','isha'].filter(k => d[k]).length;
+    archiveList.innerHTML = items.map(d => {
+    const prayers = ['fajr','dhuhr','asr','maghrib','isha'].filter(k => d[k]).length;
 
   return `
     <div class="archive-item">
@@ -429,7 +429,10 @@ archiveList.innerHTML = items.map(d => {
       </button>
     </div>
   `;
-}).join('') || '<p style="color:#9ca3af">لسه مفيش أيام محفوظة.</p>';}
+}).join('') || '<p style="color:#9ca3af">لسه مفيش أيام محفوظة.</p>';
+
+    loadSummary(items);
+  }
 
   const archiveWrapper = document.getElementById("archiveWrapper");
 const toggleBtn = document.getElementById("toggleArchive");
@@ -474,7 +477,6 @@ toggleBtn.addEventListener("click", () => {
       </div>
     `;
   }
-
 
   document.addEventListener("click", function(e){
 
@@ -536,7 +538,7 @@ function loadTrash(){
         </button>
       </div>
     `;
-  }).join('') || '<p style="color:#9ca3af">السلة فاضية ✨</p>';
+  }).join('') || '<p style="color:#9ca3af">السلة فاضية </p>';
 }
 
 const trashWrapper = document.getElementById("trashWrapper");

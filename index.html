@@ -398,7 +398,7 @@ footer {
     setStore(store);
     loadArchive();
     resetToday();
-    alert('اتحفظ يومك في الأرشيف ✨');
+    alert('اتحفظ يومك في الأرشيف');
   };
 
   document.getElementById('resetToday').onclick = resetToday;
@@ -450,7 +450,7 @@ toggleBtn.addEventListener("click", () => {
 
   function loadSummary(items){
     if(!items.length){
-      summaryEl.innerHTML = '<p style="color:#9ca3af">ابدأ أول يوم وهتشوف الملخص هنا ✨</p>';
+      summaryEl.innerHTML = '<p style="color:#9ca3af">ابدأ أول يوم وهتشوف الملخص هنا </p>';
       return;
     }
 
@@ -563,4 +563,5 @@ loadTrash();
 
 </body>
 </html>
+
 

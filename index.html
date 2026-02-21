@@ -220,7 +220,7 @@ footer {
   display: inline-block;
 }
 
-    /* تحسين المسافات */
+/* تحسين المسافات */
 
 .actions {
   display: flex;
@@ -301,6 +301,11 @@ footer {
   <div class="archive-wrapper" id="archiveWrapper">
     <div id="archiveList" class="archive-grid"></div>
   </div>
+</section>
+
+  <section class="card">
+  <h2>🗑 سلة المحذوفات</h2>
+  <div id="trashList" class="archive-grid"></div>
 </section>
 
   <section class="card">
@@ -401,20 +406,23 @@ footer {
   function loadArchive(){
     const store = getStore();
     const items = Object.values(store.archive || {}).sort((a,b)=> b.date.localeCompare(a.date));
-    archiveList.innerHTML = items.map(d => {
-      const prayers = ['fajr','dhuhr','asr','maghrib','isha'].filter(k => d[k]).length;
-      return `
-        <div class="archive-item">
-          <div><strong>📅 ${formatDate(d.date)}</strong></div>
-          <div>🕌 الصلوات: ${prayers}/5</div>
-          <div>📖 القرآن: ${d.wird ? 'تم' : '—'}</div>
-          <div>🤲 الأذكار: ${['morning','evening','salawat'].filter(k=>d[k]).length}/3</div>
-          <div>⭐ التقييم: ${d.rating || 0} / 5</div>
-        </div>
-      `;
-    }).join('') || '<p style="color:#9ca3af">لسه مفيش أيام محفوظة.</p>';
-    loadSummary(items);
-  }
+archiveList.innerHTML = items.map(d => {
+  const prayers = ['fajr','dhuhr','asr','maghrib','isha'].filter(k => d[k]).length;
+
+  return `
+    <div class="archive-item">
+      <div><strong>📅 ${formatDate(d.date)}</strong></div>
+      <div>🕌 الصلوات: ${prayers}/5</div>
+      <div>📖 القرآن: ${d.wird ? 'تم' : '—'}</div>
+      <div>🤲 الأذكار: ${['morning','evening','salawat'].filter(k=>d[k]).length}/3</div>
+      <div>⭐ التقييم: ${d.rating || 0} / 5</div>
+
+      <button class="btn secondary delete-day" data-date="${d.date}">
+        🗑 حذف اليوم
+      </button>
+    </div>
+  `;
+}).join('') || '<p style="color:#9ca3af">لسه مفيش أيام محفوظة.</p>';}
 
   const archiveWrapper = document.getElementById("archiveWrapper");
 const toggleBtn = document.getElementById("toggleArchive");
@@ -460,12 +468,75 @@ toggleBtn.addEventListener("click", () => {
     `;
   }
 
+
+  document.addEventListener("click", function(e){
+
+  if(e.target.classList.contains("delete-day")){
+    const date = e.target.dataset.date;
+    const store = getStore();
+
+    store.trash = store.trash || {};
+    store.trash[date] = store.archive[date];
+
+    delete store.archive[date];
+    setStore(store);
+
+    loadArchive();
+    loadTrash();
+  }
+
+  if(e.target.classList.contains("restore-day")){
+    const date = e.target.dataset.date;
+    const store = getStore();
+
+    store.archive[date] = store.trash[date];
+    delete store.trash[date];
+
+    setStore(store);
+    loadArchive();
+    loadTrash();
+  }
+
+  if(e.target.classList.contains("delete-forever")){
+    const date = e.target.dataset.date;
+    const store = getStore();
+
+    delete store.trash[date];
+    setStore(store);
+
+    loadTrash();
+  }
+
+});
+
+function loadTrash(){
+  const store = getStore();
+  const trash = Object.values(store.trash || {});
+
+  const trashList = document.getElementById("trashList");
+
+  trashList.innerHTML = trash.map(d => {
+    return `
+      <div class="archive-item">
+        <div><strong>📅 ${formatDate(d.date)}</strong></div>
+
+        <button class="btn restore-day" data-date="${d.date}">
+          ♻️ استرجاع
+        </button>
+
+        <button class="btn secondary delete-forever" data-date="${d.date}">
+          ❌ حذف نهائي
+        </button>
+      </div>
+    `;
+  }).join('') || '<p style="color:#9ca3af">السلة فاضية ✨</p>';
+}
+
 recalculateOldRatings();
 loadToday();
 loadArchive();
+loadTrash();
 </script>
 
 </body>
 </html>
-
-

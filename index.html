@@ -242,6 +242,25 @@ footer {
 .card h3 {
   margin-bottom: 10px;
 }
+
+    .archive-container {
+  max-height: 400px;  
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.archive-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.archive-container::-webkit-scrollbar-thumb {
+  background: #d6c2a8;
+  border-radius: 10px;
+}
+
+.archive-container::-webkit-scrollbar-track {
+  background: #f3eee7;
+}
   </style>
 </head>
 <body>
@@ -563,5 +582,6 @@ loadTrash();
 
 </body>
 </html>
+
 
 

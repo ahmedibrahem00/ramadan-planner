@@ -243,23 +243,22 @@ footer {
   margin-bottom: 10px;
 }
 
-    .archive-container {
-  max-height: 400px;  
+    /* Scroll داخلي لمنطقة الأرشيف */
+
+.card:has(#toggleArchive) {
+  max-height: 420px;
   overflow-y: auto;
   padding-right: 6px;
 }
 
-.archive-container::-webkit-scrollbar {
+/* شكل السكرول هادي */
+.card:has(#toggleArchive)::-webkit-scrollbar {
   width: 6px;
 }
 
-.archive-container::-webkit-scrollbar-thumb {
-  background: #d6c2a8;
+.card:has(#toggleArchive)::-webkit-scrollbar-thumb {
+  background: #d6c2ad;
   border-radius: 10px;
-}
-
-.archive-container::-webkit-scrollbar-track {
-  background: #f3eee7;
 }
   </style>
 </head>
@@ -582,6 +581,7 @@ loadTrash();
 
 </body>
 </html>
+
 
 
 
